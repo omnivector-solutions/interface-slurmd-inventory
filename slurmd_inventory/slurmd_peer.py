@@ -14,13 +14,13 @@ from ops.framework import (
 logger = logging.getLogger()
 
 
-class SlurmdPeerAvailableEvent(EventBase):
+class SlurmdInventoryAvailableEvent(EventBase):
     """Slurmd Peer Available Event"""
 
 
 class SlurmdPeerRelationEvents(ObjectEvents):
     """Peer Relation Events"""
-    slurmd_peer_available = EventSource(SlurmdPeerAvailableEvent)
+    slurmd_inventory_available = EventSource(SlurmdInventoryAvailableEvent)
 
 
 class SlurmdPeer(Object):
@@ -90,7 +90,7 @@ class SlurmdPeer(Object):
             nodes_info.append(inventory)
         self._state.nodes_info = nodes_info
 
-        self.on.slurmd_peer_available.emit()
+        self.on.slurmd_inventory_available.emit()
 
     def _on_relation_departed(self, event):
         logger.debug("###### LOGGING RELATION DEPARTED ######")
