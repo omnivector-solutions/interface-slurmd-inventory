@@ -84,6 +84,7 @@ class SlurmdPeer(Object):
             'ingress_address': "127.6.6.6",
             'partition': "debug",
         })
+        self.on.slurmd_inventory_available.emit()
 
     def _on_relation_joined(self, event):
         logger.debug("###### LOGGING RELATION JOINED ######")
