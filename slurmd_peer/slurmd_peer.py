@@ -78,11 +78,11 @@ class SlurmdPeer(Object):
                 'ThreadsPerCore': '1',
                 'RealMemory': '7852',
                 'UpTime': '0-08:49:20',
+                'gpus': 0,
             },
             'hostname': self.hostname,
             'ingress_address': "127.6.6.6",
             'partition': "debug",
-            'gpus': 0,
         }
         logger.debug(node_info)
         # Set the node_info to the unit data for the peer relation
