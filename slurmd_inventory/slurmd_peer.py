@@ -68,8 +68,7 @@ class SlurmdPeer(Object):
     def _on_relation_created(self, event):
         logger.debug("###### LOGGING RELATION CREATED ######")
 
-        # Set the node inventory data on the relation on_relation_created
-        event.relation.data[self.model.unit]['node_info'] = json.dumps({
+        node_info = json.dumps({
             'inventory': {
                 'NodeName': self.hostname,
                 'CPUs': '4',
@@ -84,6 +83,12 @@ class SlurmdPeer(Object):
             'ingress_address': "127.6.6.6",
             'partition': "debug",
         })
+        logger.debug(node_info)
+        # Set the node_info to the unit data for the peer relation
+        event.relation.data[self.model.unit]['node_info'] = node_info
+        # Add this units data to the local state
+        self._state.nodes_info.append(node_info)
+        # Emit the slurmd_inventory_available event
         self.on.slurmd_inventory_available.emit()
 
     def _on_relation_joined(self, event):
@@ -92,16 +97,11 @@ class SlurmdPeer(Object):
     def _on_relation_changed(self, event):
         logger.debug("###### LOGGING RELATION CHANGED ######")
 
-        my_info = json.loads(
-            event.relation.data[self.model.unit]['node_info']
-        )
-
-        nodes_info = [my_info]
-
         for unit in event.relation.units:
             node_info = json.loads(event.relation.data[unit]['node_info'])
-            nodes_info.append(node_info)
-        self._state.nodes_info = nodes_info
+            self._nodes_info.append(node_info)
+
+        logger.debug([node for node in self._nodes_info])
 
         self.on.slurmd_inventory_available.emit()
 
