@@ -31,6 +31,8 @@ class SlurmdPeer(Object):
     def __init__(self, charm, relation_name):
         super().__init__(charm, relation_name)
 
+        self._state.set_default(nodes_info=list())
+
         self.hostname = socket.gethostname()
 
         self.framework.observe(
@@ -67,15 +69,20 @@ class SlurmdPeer(Object):
         logger.debug("###### LOGGING RELATION CREATED ######")
 
         # Set the node inventory data on the relation on_relation_created
-        event.relation.data[self.model.unit]['inventory'] = json.dumps({
-            'NodeName': self.hostname,
-            'CPUs': '4',
-            'Boards': '1',
-            'SocketsPerBoard': '1',
-            'CoresPerSocket': '4',
-            'ThreadsPerCore': '1',
-            'RealMemory': '7852',
-            'UpTime': '0-08:49:20',
+        event.relation.data[self.model.unit]['node_info'] = json.dumps({
+            'inventory': {
+                'NodeName': self.hostname,
+                'CPUs': '4',
+                'Boards': '1',
+                'SocketsPerBoard': '1',
+                'CoresPerSocket': '4',
+                'ThreadsPerCore': '1',
+                'RealMemory': '7852',
+                'UpTime': '0-08:49:20',
+            },
+            'hostname': self.hostname,
+            'ingress_address': "127.6.6.6",
+            'partition': "debug",
         })
 
     def _on_relation_joined(self, event):
@@ -84,10 +91,15 @@ class SlurmdPeer(Object):
     def _on_relation_changed(self, event):
         logger.debug("###### LOGGING RELATION CHANGED ######")
 
-        nodes_info = [event.relation.data[self.model.unit]['inventory']]
+        my_info = json.loads(
+            event.relation.data[self.model.unit]['node_info']
+        )
+
+        nodes_info = [my_info]
+
         for unit in event.relation.units:
-            inventory = event.relation.data[unit]['inventory']
-            nodes_info.append(inventory)
+            node_info = json.loads(event.relation.data[unit]['node_info'])
+            nodes_info.append(node_info)
         self._state.nodes_info = nodes_info
 
         self.on.slurmd_inventory_available.emit()
