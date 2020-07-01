@@ -63,12 +63,12 @@ class SlurmdPeer(Object):
     def get_slurmd_inventory(self):
         """Return the inventory of all slurmd nodes.
         """
-        return [node_inventory for node_inventory in self._state.nodes_info]
+        return [node_info for node_info in self._state.nodes_info]
 
     def _on_relation_created(self, event):
         logger.debug("###### LOGGING RELATION CREATED ######")
 
-        node_info = json.dumps({
+        node_info = {
             'inventory': {
                 'NodeName': self.hostname,
                 'CPUs': '4',
@@ -82,10 +82,11 @@ class SlurmdPeer(Object):
             'hostname': self.hostname,
             'ingress_address': "127.6.6.6",
             'partition': "debug",
-        })
+            'gpus': 0,
+        }
         logger.debug(node_info)
         # Set the node_info to the unit data for the peer relation
-        event.relation.data[self.model.unit]['node_info'] = node_info
+        event.relation.data[self.model.unit]['node_info'] = json.dumps(node_info)
         # Add this units data to the local state
         self._state.nodes_info.append(node_info)
         # Emit the slurmd_inventory_available event
