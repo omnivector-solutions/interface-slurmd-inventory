@@ -100,9 +100,9 @@ class SlurmdPeer(Object):
 
         for unit in event.relation.units:
             node_info = json.loads(event.relation.data[unit]['node_info'])
-            self._nodes_info.append(node_info)
+            self._state.nodes_info.append(node_info)
 
-        logger.debug([node for node in self._nodes_info])
+        logger.debug([node for node in self._state.nodes_info])
 
         self.on.slurmd_inventory_available.emit()
 
